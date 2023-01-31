@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -104,12 +105,23 @@ public class BasicItemController {
      * 그러므로, 바로 view를 렌더링하지 말고 redirect 를 사용한다.
      *
      */
-    @PostMapping("/add")
+//    @PostMapping("/add")
     public String addItemV5(Item item) {
         itemRepository.save(item);
         return "redirect:/basic/items/" + item.getId(); // +item.getId() 처럼 URL에 변수를 더해서 사용하는 것은 URL 인코딩이 안되기 때문에 위험하다. RedirectAttributes 를 사용할 것.
     }
 
+    /**
+     * RedirectAttributes
+     */
+    @PostMapping("/add")
+    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true); // path에 사용하지 않은 값은 redirect 주소에 queryParameter 형식으로 붙는다.
+
+        return "redirect:/basic/items/{itemId}"; // redirectAttribute에 넣은 값 "itemId"가 path에 치환된다.
+    }
 
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
