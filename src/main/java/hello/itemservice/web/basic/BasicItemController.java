@@ -92,11 +92,24 @@ public class BasicItemController {
      * @ModelAttribute나 @RequestParam은 모두 생략 가능하다.
      * 이 때, 넘겨받은 인자의 타입이 Primitive Type이면 @ReqeustParam을 적용하고, 나머지 타입은 @ModelAttribute를 적용한다.(argument resolver 로 지정해둔 타입 외)
      */
-    @PostMapping("/add")
+//    @PostMapping("/add")
     public String addItemV4(Item item) {
         itemRepository.save(item);
         return "basic/item";
     }
+
+    /**
+     * PRG - Post/Redirect/Get .
+     * Post 요청(리소스 생성)이후 곧바로 view 페이지를 렌더링하면 사용자가 새로고침할 때 계속 Post 요청이 반복됨.
+     * 그러므로, 바로 view를 렌더링하지 말고 redirect 를 사용한다.
+     *
+     */
+    @PostMapping("/add")
+    public String addItemV5(Item item) {
+        itemRepository.save(item);
+        return "redirect:/basic/items/" + item.getId(); // +item.getId() 처럼 URL에 변수를 더해서 사용하는 것은 URL 인코딩이 안되기 때문에 위험하다. RedirectAttributes 를 사용할 것.
+    }
+
 
     @GetMapping("/{itemId}/edit")
     public String editForm(@PathVariable Long itemId, Model model) {
